@@ -1,9 +1,5 @@
 # 🎬 NextJS YouTube Clone
 
-<p align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWZtaWJ0dHJhcnNwZ3Jma2JqZ3Q2cnJheG44Z3ljcTJlN2M2azQ2eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L8K62iTDMLOo1QJBC2/giphy.gif" alt="Animated GIF showing a code editor with code being written." width="600"/>
-</p>
-
 A feature-rich YouTube clone built with the latest web technologies, providing a seamless video sharing and viewing experience.
 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)]() [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)]() [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)]() [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)]()
@@ -141,4 +137,3 @@ This project has no specified license. All rights reserved.
 * [NextAuth.js](https://next-auth.js.org/)
 * [ImageKit](https://imagekit.io/)
 
-````
