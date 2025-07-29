@@ -1,78 +1,116 @@
-"use client"; // This component must be a client component
+"use client";
 
-import {
-  upload,
-} from "@imagekit/next";
+import { upload } from "@imagekit/next";
 import { useState } from "react";
+import { useNotification } from "./Notification";
 
 interface FileUploadProps {
   onSuccess: (res: any) => void;
   onProgress?: (progress: number) => void;
   fileType?: "image" | "video";
+  className?: string;
+  label?: string;
 }
 
-const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
+const FileUpload = ({
+  onSuccess,
+  onProgress,
+  fileType = "image",
+  className = "",
+  label = "Upload File",
+}: FileUploadProps) => {
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  //optional validation
+  const [progress, setProgress] = useState(0);
+  const { showNotification } = useNotification();
 
   const validateFile = (file: File) => {
-    if (fileType === "video") {
-      if (!file.type.startsWith("video/")) {
-        setError("Please upload a valid video file");
-      }
+    if (fileType === "video" && !file.type.startsWith("video/")) {
+      showNotification("Please upload a valid video file", "error");
+      return false;
     }
+
+    if (fileType === "image" && !file.type.startsWith("image/")) {
+      showNotification("Please upload a valid image file", "error");
+      return false;
+    }
+
     if (file.size > 100 * 1024 * 1024) {
-      setError("File size must be less than 100 MB");
+      showNotification("File size must be less than 100 MB", "error");
+      return false;
     }
+
     return true;
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if (!file || !validateFile(file)) return;
+    if (!file) return;
+    if (!validateFile(file)) return;
 
     setUploading(true);
-    setError(null);
+    setProgress(0);
 
     try {
       const authRes = await fetch("/api/auth/imagekit-auth");
       const auth = await authRes.json();
 
+      if (!auth.authenticationParameters) {
+        throw new Error("Failed to get authentication parameters");
+      }
+
       const res = await upload({
         file,
-        fileName: file.name,
-        publicKey: process.env.NEXT_PUBLIC_PUBLIC_KEY!,
-        signature: auth.signature,
-        expire: auth.expire,
-        token: auth.token,
+        fileName: `${Date.now()}_${file.name}`,
+        publicKey: auth.publicKey,
+        signature: auth.authenticationParameters.signature,
+        expire: auth.authenticationParameters.expire,
+        token: auth.authenticationParameters.token,
         onProgress: (event) => {
-          if(event.lengthComputable && onProgress){
+          if (event.lengthComputable) {
             const percent = (event.loaded / event.total) * 100;
-            onProgress(Math.round(percent))
+            const roundedPercent = Math.round(percent);
+            setProgress(roundedPercent);
+            if (onProgress) {
+              onProgress(roundedPercent);
+            }
           }
         },
-        
       });
-      onSuccess(res)
+
+      showNotification("File uploaded successfully", "success");
+      onSuccess(res);
     } catch (error) {
-        console.error("Upload failed", error)
+      console.error("Upload failed", error);
+      showNotification("Failed to upload file", "error");
     } finally {
-        setUploading(false)
+      setUploading(false);
     }
   };
 
   return (
-    <>
-      <input
-        type="file"
-        accept={fileType === "video" ? "video/*" : "image/*"}
-        onChange={handleFileChange}
-      />
-      {uploading && <span>Loading....</span>}
-    </>
+    <div className={className}>
+      <label className="block mb-2 text-sm font-medium text-gray-900">
+        {label}
+        <input
+          type="file"
+          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none mt-1"
+          accept={fileType === "video" ? "video/*" : "image/*"}
+          onChange={handleFileChange}
+          disabled={uploading}
+        />
+      </label>
+
+      {uploading && (
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div
+            className="bg-blue-600 h-2.5 rounded-full"
+            style={{ width: `${progress}%` }}
+          ></div>
+          <p className="text-xs text-gray-500 mt-1">{progress}% Uploaded</p>
+        </div>
+      )}
+    </div>
   );
 };
 
