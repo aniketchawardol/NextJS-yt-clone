@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNotification } from "./Notification";
 
 interface FileUploadProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess: (res: any) => void;
   onProgress?: (progress: number) => void;
   fileType?: "image" | "video";

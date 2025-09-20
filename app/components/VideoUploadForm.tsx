@@ -15,10 +15,12 @@ const VideoUploadForm = () => {
   const router = useRouter();
   const { showNotification } = useNotification();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleVideoUpload = (res: any) => {
     setVideoUrl(res.url);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleThumbnailUpload = (res: any) => {
     setThumbnailUrl(res.url);
   };
